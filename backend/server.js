@@ -7,17 +7,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
-const app = express();
-const PORT = 3001;
-const JWT_SECRET = 'pc_store_secret_2024_change_in_production';
+const PORT = process.env.PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'pc_store_secret_2024_change_in_production';
 
-// ── DB CONNECTION ────────────────────────────
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'pcstore',
-  user: 'postgres',       // ← cambia si tu usuario es diferente
-  password: 'admin',   // ← cambia tu password de PostgreSQL
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 pool.connect()
