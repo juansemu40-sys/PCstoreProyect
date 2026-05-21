@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PC Store — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070b14;
+      --sidebar: #090e1a;
+      --surface: #0d1424;
+      --surface2: #111827;
+      --border: #1a2744;
+      --border2: #243056;
+      --accent: #00e5ff;
+      --accent-dim: rgba(0,229,255,.12);
+      --accent2: #7b61ff;
+      --green: #a6e3a1;
+      --yellow: #f9e2af;
+      --red: #f38ba8;
+      --text: #cdd6f4;
+      --text2: #a6adc8;
+      --muted: #585b70;
+      --white: #ffffff;
+      --sidebar-w: 240px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 14px;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 1.4rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      color: var(--white);
+    }
+    .logo-text span { color: var(--accent); }
+
+    .sidebar-section {
+      padding: .75rem .75rem .25rem;
+    }
+    .sidebar-label {
+      font-size: .65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 0 .5rem;
+      margin-bottom: .25rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .55rem .75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--text2);
+      border: 1px solid transparent;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--accent-dim); color: var(--text); }
+    .nav-item.active {
+      background: var(--accent-dim);
+      border-color: rgba(0,229,255,.2);
+      color: var(--accent);
+    }
+    .nav-icon { font-size: .95rem; width: 18px; text-align: center; }
+    .nav-label { font-size: .88rem; font-weight: 500; }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: .75rem;
+      border-top: 1px solid var(--border);
+    }
+    .user-card {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .5rem .6rem;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .user-avatar {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700; color: white;
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: .82rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: .7rem; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+    .btn-logout {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 4px; border-radius: 4px;
+      transition: color .2s;
+    }
+    .btn-logout:hover { color: var(--red); }
+
+    /* ── MAIN ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    #topbar {
+      background: var(--sidebar);
+      border-bottom: 1px solid var(--border);
+      padding: .85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .page-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .topbar-actions { display: flex; align-items: center; gap: .75rem; }
+
+    #content { padding: 1.5rem; flex: 1; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: .45rem .9rem;
+      border-radius: 7px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: .83rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all .15s;
+      display: inline-flex; align-items: center; gap: .35rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #070b14;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: #00c8e6; }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text2);
+      border-color: var(--border2);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger {
+      background: rgba(243,139,168,.1);
+      color: var(--red);
+      border-color: rgba(243,139,168,.25);
+    }
+    .btn-danger:hover { background: rgba(243,139,168,.2); }
+    .btn-sm { padding: .3rem .6rem; font-size: .78rem; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── TABLE ── */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+    }
+    .table-header-left { display: flex; align-items: center; gap: .75rem; }
+    .search-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: .4rem .75rem;
+      color: var(--text);
+      font-size: .83rem;
+      outline: none;
+      width: 200px;
+      transition: border-color .2s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .record-count {
+      font-size: .75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--muted);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: var(--surface2);
+      padding: .6rem 1rem;
+      text-align: left;
+      font-size: .72rem;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: .7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text2);
+      font-size: .87rem;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: .2rem .55rem;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 500;
+    }
+    .badge-green { background: rgba(166,227,161,.1); color: var(--green); border: 1px solid rgba(166,227,161,.2); }
+    .badge-red   { background: rgba(243,139,168,.1); color: var(--red);   border: 1px solid rgba(243,139,168,.2); }
+    .badge-blue  { background: rgba(0,229,255,.1);   color: var(--accent); border: 1px solid rgba(0,229,255,.2); }
+    .badge-yellow{ background: rgba(249,226,175,.1); color: var(--yellow); border: 1px solid rgba(249,226,175,.2); }
+    .badge-purple{ background: rgba(123,97,255,.12); color: #a29bfe;       border: 1px solid rgba(123,97,255,.25); }
+
+    .td-actions { display: flex; gap: .4rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      width: 500px;
+      max-width: 96vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalIn .2s ease;
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+    .modal-header {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+    }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 1.2rem;
+      transition: color .2s;
+    }
+    .modal-close:hover { color: var(--red); }
+    .modal-body { padding: 1.4rem; }
+    .modal-footer {
+      padding: 1rem 1.4rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: .6rem;
+    }
+
+    /* ── FORM ── */
+    .form-row { margin-bottom: 1rem; }
+    .form-row label {
+      display: block;
+      font-size: .72rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: .35rem;
+    }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: .6rem .85rem;
+      color: var(--text);
+      font-size: .88rem;
+      font-family: 'IBM Plex Sans', sans-serif;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0,229,255,.08);
+    }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .form-row select option { background: var(--surface2); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+    /* ── PERMISSIONS TABLE ── */
+    .perm-table { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+    .perm-table th {
+      font-size: .68rem; padding: .4rem .5rem;
+      background: var(--surface2);
+    }
+    .perm-table td {
+      padding: .45rem .5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .perm-table td:first-child { text-align: left; }
+    .perm-table tr:last-child td { border-bottom: none; }
+    .module-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .78rem;
+      color: var(--text2);
+    }
+    .perm-check {
+      width: 16px; height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    /* ── DASHBOARD STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .stat-card:hover { border-color: var(--border2); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .stat-card.c1::before { background: linear-gradient(90deg, var(--accent), transparent); }
+    .stat-card.c2::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+    .stat-card.c3::before { background: linear-gradient(90deg, var(--green), transparent); }
+    .stat-card.c4::before { background: linear-gradient(90deg, var(--yellow), transparent); }
+    .stat-icon { font-size: 1.4rem; margin-bottom: .5rem; }
+    .stat-value {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: .75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: .2rem;
+    }
+
+    /* ── NO ACCESS ── */
+    .no-access {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
+      text-align: center;
+    }
+    .no-access-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+    .no-access h3 { color: var(--text2); margin-bottom: .5rem; }
+    .no-access p { color: var(--muted); font-size: .85rem; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* Notifications */
+    #notify {
+      position: fixed; top: 1rem; right: 1rem; z-index: 9999;
+      display: flex; flex-direction: column; gap: .5rem;
+    }
+    .notify-item {
+      padding: .7rem 1rem;
+      border-radius: 8px;
+      font-size: .85rem;
+      border: 1px solid;
+      animation: slideIn .25s ease;
+      min-width: 240px;
+    }
+    @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+    .notify-success { background: rgba(166,227,161,.12); border-color: rgba(166,227,161,.3); color: var(--green); }
+    .notify-error   { background: rgba(243,139,168,.12); border-color: rgba(243,139,168,.3); color: var(--red); }
+
+    .empty-state { padding: 3rem; text-align: center; color: var(--muted); }
+
+    .role-row-perm {
+      display: flex; gap: 4px; flex-wrap: wrap;
+    }
+
+    .text-primary { color: var(--text); font-weight: 500; }
+    .text-money { font-family: 'IBM Plex Mono', monospace; color: var(--green); }
+    .text-stock { font-family: 'IBM Plex Mono', monospace; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🖥️</div>
+    <div class="logo-text">PC<span>Store</span></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">General</div>
+    <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Dashboard</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="nav-section-store">
+    <div class="sidebar-label">Tienda</div>
+    <div class="nav-item" onclick="navigate('products')" id="nav-products">
+      <span class="nav-icon">💻</span>
+      <span class="nav-label">Productos</span>
+    </div>
+    <div class="nav-item" onclick="navigate('categories')" id="nav-categories">
+      <span class="nav-icon">📂</span>
+      <span class="nav-label">Categorías</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="nav-section-admin">
+    <div class="sidebar-label">Administración</div>
+    <div class="nav-item" onclick="navigate('users')" id="nav-users">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Usuarios</span>
+    </div>
+    <div class="nav-item" onclick="navigate('roles')" id="nav-roles">
+      <span class="nav-icon">🔐</span>
+      <span class="nav-label">Roles y Permisos</span>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">--</div>
+        <div class="user-role" id="userRole">--</div>
+      </div>
+      <button class="btn-logout" onclick="logout()" title="Cerrar sesión">✕</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div class="page-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-actions" id="topbarActions"></div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Modal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notify"></div>
+
+<script>
+const API = 'http://localhost:3001/api';
+let currentUser = null;
+let currentPage = 'dashboard';
+let editingId = null;
+let allCategories = [];
+let allRoles = [];
+
+// ── INIT ──────────────────────────────────────
+window.onload = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) { window.location.href = 'index.html'; return; }
+  try {
+    const u = localStorage.getItem('user');
+    currentUser = u ? JSON.parse(u) : null;
+    if (!currentUser) throw new Error('No user');
+    renderUser();
+    buildNav();
+    navigate('dashboard');
+  } catch {
+    logout();
+  }
+};
+
+function getToken() { return localStorage.getItem('token'); }
+
+function hasPerm(module, action) {
+  if (!currentUser) return false;
+  if (currentUser.role_id === 1) return true;
+  const p = currentUser.permissions && currentUser.permissions[module];
+  return p ? !!p[action] : false;
+}
+
+function renderUser() {
+  document.getElementById('userName').textContent = currentUser.full_name || currentUser.username;
+  document.getElementById('userRole').textContent = currentUser.role_name;
+  document.getElementById('userAvatar').textContent =
+    (currentUser.full_name || currentUser.username).charAt(0).toUpperCase();
+}
+
+function buildNav() {
+  // Hide nav items based on permissions
+  const showUsersSection  = hasPerm('users',  'can_view');
+  const showRolesSection  = hasPerm('roles',  'can_view');
+  document.getElementById('nav-users').style.display = showUsersSection ? '' : 'none';
+  document.getElementById('nav-roles').style.display = showRolesSection ? '' : 'none';
+  document.getElementById('nav-section-admin').style.display =
+    (showUsersSection || showRolesSection) ? '' : 'none';
+  if (!hasPerm('products',   'can_view')) document.getElementById('nav-products').style.display = 'none';
+  if (!hasPerm('categories', 'can_view')) document.getElementById('nav-categories').style.display = 'none';
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
+}
+
+// ── NAVIGATION ────────────────────────────────
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('topbarActions').innerHTML = '';
+  switch (page) {
+    case 'dashboard':  renderDashboard(); break;
+    case 'products':   renderProducts();  break;
+    case 'categories': renderCategories();break;
+    case 'users':      renderUsers();     break;
+    case 'roles':      renderRoles();     break;
+  }
+}
+
+// ── API HELPER ────────────────────────────────
+async function api(method, path, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + getToken()
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Error desconocido');
+  return data;
+}
+
+// ── NOTIFICATIONS ─────────────────────────────
+function notify(msg, type = 'success') {
+  const box = document.getElementById('notify');
+  const el = document.createElement('div');
+  el.className = `notify-item notify-${type}`;
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── MODAL ─────────────────────────────────────
+function openModal(title, bodyHTML, footerHTML) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  document.getElementById('modalFooter').innerHTML = footerHTML;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// ── DASHBOARD ─────────────────────────────────
+async function renderDashboard() {
+  document.getElementById('pageTitle').textContent = 'Dashboard';
+  document.getElementById('content').innerHTML = '<div style="color:var(--muted);padding:2rem">Cargando...</div>';
+  try {
+    const [products, categories, users, roles] = await Promise.allSettled([
+      hasPerm('products','can_view')   ? api('GET','/products')   : Promise.resolve([]),
+      hasPerm('categories','can_view') ? api('GET','/categories') : Promise.resolve([]),
+      hasPerm('users','can_view')      ? api('GET','/users')      : Promise.resolve([]),
+      hasPerm('roles','can_view')      ? api('GET','/roles')      : Promise.resolve([]),
+    ]);
+    const p = products.value   || [];
+    const c = categories.value || [];
+    const u = users.value      || [];
+    const r = roles.value      || [];
+    const totalVal = p.reduce((s, x) => s + parseFloat(x.price) * parseInt(x.stock), 0);
+    const lowStock = p.filter(x => x.stock < 5).length;
+
+    document.getElementById('content').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card c1">
+          <div class="stat-icon">💻</div>
+          <div class="stat-value">${p.length}</div>
+          <div class="stat-label">Productos</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-icon">📂</div>
+          <div class="stat-value">${c.length}</div>
+          <div class="stat-label">Categorías</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-icon">👤</div>
+          <div class="stat-value">${u.length}</div>
+          <div class="stat-label">Usuarios</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-value">${lowStock}</div>
+          <div class="stat-label">Stock Bajo (&lt;5)</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:600;">
+            Productos Recientes
+          </span>
+          <span class="record-count">
+            Inventario total: <span style="color:var(--green)">$${totalVal.toLocaleString('es-CO', {minimumFractionDigits:2})}</span>
+          </span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${p.slice(0,8).map(prod => `
+              <tr>
+                <td class="text-primary">${prod.name}</td>
+                <td><span class="badge badge-blue">${prod.category_name||'—'}</span></td>
+                <td class="text-money">$${parseFloat(prod.price).toFixed(2)}</td>
+                <td>
+                  <span class="badge ${prod.stock < 5 ? 'badge-red' : prod.stock < 15 ? 'badge-yellow' : 'badge-green'}">
+                    ${prod.stock} uds
+                  </span>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<p style="color:var(--red)">${e.message}</p>`;
+  }
+}
+
+// ── PRODUCTS ──────────────────────────────────
+async function renderProducts() {
+  document.getElementById('pageTitle').textContent = 'Productos';
+  if (!hasPerm('products','can_view')) { showNoAccess(); return; }
+
+  const addBtn = hasPerm('products','can_create')
+    ? `<button class="btn btn-primary" onclick="openProductModal()">＋ Nuevo Producto</button>` : '';
+  document.getElementById('topbarActions').innerHTML = addBtn;
+  document.getElementById('content').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-header-left">
+          <input class="search-input" id="prodSearch" placeholder="🔍 Buscar..." oninput="filterTable('prodTable',this.value)">
+          <span class="record-count" id="prodCount"></span>
+        </div>
+      </div>
+      <table id="prodTable">
+        <thead><tr>
+          <th>Nombre</th><th>Marca</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="prodBody"><tr><td colspan="6" class="empty-state">Cargando...</td></tr></tbody>
+      </table>
+    </div>`;
+  await loadProducts();
+}
+
+async function loadProducts() {
+  try {
+    allCategories = hasPerm('categories','can_view') ? await api('GET','/categories') : [];
+    const items = await api('GET','/products');
+    document.getElementById('prodCount').textContent = `${items.length} productos`;
+    const tbody = document.getElementById('prodBody');
+    if (!items.length) { tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No hay productos</td></tr>`; return; }
+    tbody.innerHTML = items.map(p => `
+      <tr>
+        <td class="text-primary">${p.name}</td>
+        <td style="color:var(--text2)">${p.brand||'—'}</td>
+        <td><span class="badge badge-blue">${p.category_name||'—'}</span></td>
+        <td class="text-money">$${parseFloat(p.price).toFixed(2)}</td>
+        <td>
+          <span class="badge ${p.stock<5?'badge-red':p.stock<15?'badge-yellow':'badge-green'} text-stock">
+            ${p.stock}
+          </span>
+        </td>
+        <td>
+          <div class="td-actions">
+            ${hasPerm('products','can_edit')   ? `<button class="btn btn-secondary btn-sm" onclick="openProductModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">✏️</button>` : ''}
+            ${hasPerm('products','can_delete') ? `<button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id},'${p.name.replace(/'/g,"\\'")}')">🗑️</button>` : ''}
+            ${!hasPerm('products','can_edit') && !hasPerm('products','can_delete') ? '<span style="color:var(--muted);font-size:.75rem">Solo lectura</span>' : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+async function openProductModal(prod) {
+  const isEdit = !!prod;
+  editingId = prod ? prod.id : null;
+  const cats = allCategories.map(c => `<option value="${c.id}" ${prod?.category_id==c.id?'selected':''}>${c.name}</option>`).join('');
+  openModal(
+    isEdit ? '✏️ Editar Producto' : '➕ Nuevo Producto',
+    `<div class="form-row"><label>Nombre *</label><input id="f-name" value="${prod?.name||''}"></div>
+     <div class="form-grid">
+       <div class="form-row"><label>Marca</label><input id="f-brand" value="${prod?.brand||''}"></div>
+       <div class="form-row"><label>Categoría</label>
+         <select id="f-cat"><option value="">Sin categoría</option>${cats}</select>
+       </div>
+     </div>
+     <div class="form-grid">
+       <div class="form-row"><label>Precio *</label><input id="f-price" type="number" step="0.01" value="${prod?.price||''}"></div>
+       <div class="form-row"><label>Stock</label><input id="f-stock" type="number" value="${prod?.stock||0}"></div>
+     </div>
+     <div class="form-row"><label>Descripción</label><textarea id="f-desc">${prod?.description||''}</textarea></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="saveProduct()">💾 Guardar</button>`
+  );
+}
+
+async function saveProduct() {
+  const body = {
+    name: document.getElementById('f-name').value.trim(),
+    brand: document.getElementById('f-brand').value.trim(),
+    category_id: document.getElementById('f-cat').value || null,
+    price: parseFloat(document.getElementById('f-price').value),
+    stock: parseInt(document.getElementById('f-stock').value)||0,
+    description: document.getElementById('f-desc').value.trim()
+  };
+  if (!body.name || !body.price) { notify('Nombre y precio son requeridos','error'); return; }
+  try {
+    if (editingId) {
+      await api('PUT', `/products/${editingId}`, body);
+      notify('Producto actualizado ✓');
+    } else {
+      await api('POST', '/products', body);
+      notify('Producto creado ✓');
+    }
+    closeModal(); loadProducts();
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm(`¿Eliminar "${name}"?`)) return;
+  try {
+    await api('DELETE', `/products/${id}`);
+    notify('Producto eliminado');
+    loadProducts();
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+// ── CATEGORIES ────────────────────────────────
+async function renderCategories() {
+  document.getElementById('pageTitle').textContent = 'Categorías';
+  if (!hasPerm('categories','can_view')) { showNoAccess(); return; }
+
+  const addBtn = hasPerm('categories','can_create')
+    ? `<button class="btn btn-primary" onclick="openCatModal()">＋ Nueva Categoría</button>` : '';
+  document.getElementById('topbarActions').innerHTML = addBtn;
+  document.getElementById('content').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-header-left">
+          <input class="search-input" placeholder="🔍 Buscar..." oninput="filterTable('catTable',this.value)">
+          <span class="record-count" id="catCount"></span>
+        </div>
+      </div>
+      <table id="catTable">
+        <thead><tr><th>Nombre</th><th>Descripción</th><th>Productos</th><th>Fecha</th><th>Acciones</th></tr></thead>
+        <tbody id="catBody"><tr><td colspan="5" class="empty-state">Cargando...</td></tr></tbody>
+      </table>
+    </div>`;
+  await loadCategories();
+}
+
+async function loadCategories() {
+  try {
+    const items = await api('GET','/categories');
+    document.getElementById('catCount').textContent = `${items.length} categorías`;
+    const tbody = document.getElementById('catBody');
+    if (!items.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No hay categorías</td></tr>`; return; }
+    tbody.innerHTML = items.map(c => `
+      <tr>
+        <td class="text-primary">${c.name}</td>
+        <td style="color:var(--text2);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.description||'—'}</td>
+        <td><span class="badge badge-blue">${c.product_count} productos</span></td>
+        <td style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.78rem">${new Date(c.created_at).toLocaleDateString('es-CO')}</td>
+        <td>
+          <div class="td-actions">
+            ${hasPerm('categories','can_edit')   ? `<button class="btn btn-secondary btn-sm" onclick='openCatModal(${JSON.stringify(c)})'>✏️</button>` : ''}
+            ${hasPerm('categories','can_delete') ? `<button class="btn btn-danger btn-sm" onclick="deleteCat(${c.id},'${c.name.replace(/'/g,"\\'")}')">🗑️</button>` : ''}
+            ${!hasPerm('categories','can_edit') && !hasPerm('categories','can_delete') ? '<span style="color:var(--muted);font-size:.75rem">Solo lectura</span>' : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+function openCatModal(cat) {
+  const isEdit = !!cat;
+  editingId = cat ? cat.id : null;
+  openModal(
+    isEdit ? '✏️ Editar Categoría' : '➕ Nueva Categoría',
+    `<div class="form-row"><label>Nombre *</label><input id="cf-name" value="${cat?.name||''}"></div>
+     <div class="form-row"><label>Descripción</label><textarea id="cf-desc">${cat?.description||''}</textarea></div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="saveCat()">💾 Guardar</button>`
+  );
+}
+
+async function saveCat() {
+  const body = {
+    name: document.getElementById('cf-name').value.trim(),
+    description: document.getElementById('cf-desc').value.trim()
+  };
+  if (!body.name) { notify('El nombre es requerido','error'); return; }
+  try {
+    if (editingId) { await api('PUT', `/categories/${editingId}`, body); notify('Categoría actualizada ✓'); }
+    else           { await api('POST', '/categories', body); notify('Categoría creada ✓'); }
+    closeModal(); loadCategories();
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+async function deleteCat(id, name) {
+  if (!confirm(`¿Eliminar "${name}"?`)) return;
+  try { await api('DELETE', `/categories/${id}`); notify('Categoría eliminada'); loadCategories(); }
+  catch (e) { notify(e.message, 'error'); }
+}
+
+// ── USERS ─────────────────────────────────────
+async function renderUsers() {
+  document.getElementById('pageTitle').textContent = 'Usuarios';
+  if (!hasPerm('users','can_view')) { showNoAccess(); return; }
+
+  const addBtn = hasPerm('users','can_create')
+    ? `<button class="btn btn-primary" onclick="openUserModal()">＋ Nuevo Usuario</button>` : '';
+  document.getElementById('topbarActions').innerHTML = addBtn;
+  document.getElementById('content').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-header-left">
+          <input class="search-input" placeholder="🔍 Buscar..." oninput="filterTable('userTable',this.value)">
+          <span class="record-count" id="userCount"></span>
+        </div>
+      </div>
+      <table id="userTable">
+        <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Creado</th><th>Acciones</th></tr></thead>
+        <tbody id="userBody"><tr><td colspan="6" class="empty-state">Cargando...</td></tr></tbody>
+      </table>
+    </div>`;
+  await loadUsers();
+}
+
+async function loadUsers() {
+  try {
+    allRoles = hasPerm('roles','can_view') ? await api('GET','/roles') : [];
+    const items = await api('GET','/users');
+    document.getElementById('userCount').textContent = `${items.length} usuarios`;
+    const tbody = document.getElementById('userBody');
+    if (!items.length) { tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No hay usuarios</td></tr>`; return; }
+    tbody.innerHTML = items.map(u => `
+      <tr>
+        <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">@${u.username}</td>
+        <td class="text-primary">${u.full_name||'—'}</td>
+        <td>
+          <span class="badge ${u.role_name==='Admin'?'badge-purple':u.role_name==='Vendedor'?'badge-blue':'badge-yellow'}">
+            ${u.role_name||'Sin rol'}
+          </span>
+        </td>
+        <td><span class="badge ${u.active?'badge-green':'badge-red'}">${u.active?'Activo':'Inactivo'}</span></td>
+        <td style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.78rem">${new Date(u.created_at).toLocaleDateString('es-CO')}</td>
+        <td>
+          <div class="td-actions">
+            ${hasPerm('users','can_edit')   ? `<button class="btn btn-secondary btn-sm" onclick='openUserModal(${JSON.stringify(u)})'>✏️</button>` : ''}
+            ${hasPerm('users','can_delete') && u.id!==currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id},'${u.username}')">🗑️</button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+function openUserModal(user) {
+  const isEdit = !!user;
+  editingId = user ? user.id : null;
+  const roleOpts = allRoles.map(r => `<option value="${r.id}" ${user?.role_id==r.id?'selected':''}>${r.name}</option>`).join('');
+  const passField = isEdit
+    ? `<div class="form-row"><label>Nueva Contraseña (dejar vacío para no cambiar)</label><input id="uf-pass" type="password" placeholder="••••••••"></div>`
+    : `<div class="form-row"><label>Contraseña *</label><input id="uf-pass" type="password" placeholder="••••••••"></div>`;
+  openModal(
+    isEdit ? '✏️ Editar Usuario' : '➕ Nuevo Usuario',
+    `<div class="form-grid">
+       <div class="form-row"><label>Username *</label><input id="uf-user" value="${user?.username||''}" ${isEdit?'readonly':''}></div>
+       <div class="form-row"><label>Nombre completo</label><input id="uf-name" value="${user?.full_name||''}"></div>
+     </div>
+     ${passField}
+     <div class="form-grid">
+       <div class="form-row"><label>Rol</label><select id="uf-role"><option value="">Sin rol</option>${roleOpts}</select></div>
+       <div class="form-row"><label>Estado</label>
+         <select id="uf-active">
+           <option value="true"  ${user?.active!==false?'selected':''}>Activo</option>
+           <option value="false" ${user?.active===false?'selected':''}>Inactivo</option>
+         </select>
+       </div>
+     </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="saveUser()">💾 Guardar</button>`
+  );
+}
+
+async function saveUser() {
+  const body = {
+    username:  document.getElementById('uf-user').value.trim(),
+    full_name: document.getElementById('uf-name').value.trim(),
+    role_id:   document.getElementById('uf-role').value || null,
+    active:    document.getElementById('uf-active').value === 'true',
+  };
+  const pass = document.getElementById('uf-pass').value;
+  if (pass) body.password = pass;
+  if (!body.username) { notify('El nombre de usuario es requerido','error'); return; }
+  if (!editingId && !pass) { notify('La contraseña es requerida','error'); return; }
+  try {
+    if (editingId) { await api('PUT',`/users/${editingId}`, body); notify('Usuario actualizado ✓'); }
+    else           { await api('POST','/users', body); notify('Usuario creado ✓'); }
+    closeModal(); loadUsers();
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+async function deleteUser(id, username) {
+  if (!confirm(`¿Eliminar usuario "${username}"?`)) return;
+  try { await api('DELETE',`/users/${id}`); notify('Usuario eliminado'); loadUsers(); }
+  catch (e) { notify(e.message, 'error'); }
+}
+
+// ── ROLES & PERMISSIONS ───────────────────────
+async function renderRoles() {
+  document.getElementById('pageTitle').textContent = 'Roles y Permisos';
+  if (!hasPerm('roles','can_view')) { showNoAccess(); return; }
+
+  const addBtn = hasPerm('roles','can_create')
+    ? `<button class="btn btn-primary" onclick="openRoleModal()">＋ Nuevo Rol</button>` : '';
+  document.getElementById('topbarActions').innerHTML = addBtn;
+  document.getElementById('content').innerHTML = `
+    <div class="table-card" style="margin-bottom:1rem" id="rolesTableCard">
+      <div class="table-header">
+        <span style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:600;">Roles del Sistema</span>
+        <span class="record-count" id="roleCount"></span>
+      </div>
+      <table id="roleTable">
+        <thead><tr><th>Rol</th><th>Descripción</th><th>Permisos</th><th>Acciones</th></tr></thead>
+        <tbody id="roleBody"><tr><td colspan="4" class="empty-state">Cargando...</td></tr></tbody>
+      </table>
+    </div>`;
+  await loadRoles();
+}
+
+const MODULES = [
+  { key: 'products',   label: '💻 Productos'  },
+  { key: 'categories', label: '📂 Categorías' },
+  { key: 'users',      label: '👤 Usuarios'   },
+  { key: 'roles',      label: '🔐 Roles'      },
+];
+
+async function loadRoles() {
+  try {
+    const items = await api('GET','/roles');
+    allRoles = items;
+    document.getElementById('roleCount').textContent = `${items.length} roles`;
+    const tbody = document.getElementById('roleBody');
+    tbody.innerHTML = items.map(role => {
+      const perms = role.permissions || [];
+      const permBadges = MODULES.map(m => {
+        const p = perms.find(x => x.module === m.key);
+        if (!p) return '';
+        const actions = [];
+        if (p.can_view)   actions.push('<span class="badge badge-green" style="font-size:.65rem">Ver</span>');
+        if (p.can_create) actions.push('<span class="badge badge-blue" style="font-size:.65rem">Crear</span>');
+        if (p.can_edit)   actions.push('<span class="badge badge-yellow" style="font-size:.65rem">Editar</span>');
+        if (p.can_delete) actions.push('<span class="badge badge-red" style="font-size:.65rem">Eliminar</span>');
+        if (!actions.length) return '';
+        return `<div style="margin-bottom:4px"><span style="font-size:.7rem;color:var(--muted);margin-right:4px">${m.label.split(' ')[1]}:</span>${actions.join(' ')}</div>`;
+      }).join('');
+      return `
+        <tr>
+          <td>
+            <span class="badge ${role.name==='Admin'?'badge-purple':role.name==='Vendedor'?'badge-blue':'badge-yellow'}" style="font-size:.85rem">
+              ${role.name}
+            </span>
+          </td>
+          <td style="color:var(--text2)">${role.description||'—'}</td>
+          <td style="max-width:340px">${permBadges||'<span style="color:var(--muted);font-size:.8rem">Sin permisos</span>'}</td>
+          <td>
+            <div class="td-actions">
+              ${hasPerm('roles','can_edit')   ? `<button class="btn btn-secondary btn-sm" onclick='openRoleModal(${JSON.stringify(role)})'>✏️ Editar permisos</button>` : ''}
+              ${hasPerm('roles','can_delete') && role.name!=='Admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteRole(${role.id},'${role.name}')">🗑️</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+function openRoleModal(role) {
+  const isEdit = !!role;
+  editingId = role ? role.id : null;
+  const perms = role?.permissions || [];
+
+  const permRows = MODULES.map(m => {
+    const p = perms.find(x => x.module === m.key) || {};
+    return `
+      <tr>
+        <td><span class="module-name">${m.label}</span></td>
+        <td><input type="checkbox" class="perm-check" id="p-${m.key}-view"   ${p.can_view?'checked':''}></td>
+        <td><input type="checkbox" class="perm-check" id="p-${m.key}-create" ${p.can_create?'checked':''}></td>
+        <td><input type="checkbox" class="perm-check" id="p-${m.key}-edit"   ${p.can_edit?'checked':''}></td>
+        <td><input type="checkbox" class="perm-check" id="p-${m.key}-delete" ${p.can_delete?'checked':''}></td>
+      </tr>`;
+  }).join('');
+
+  openModal(
+    isEdit ? `🔐 Permisos — ${role.name}` : '➕ Nuevo Rol',
+    `<div class="form-grid">
+       <div class="form-row"><label>Nombre *</label><input id="rf-name" value="${role?.name||''}" ${role?.name==='Admin'?'readonly':''}></div>
+       <div class="form-row"><label>Descripción</label><input id="rf-desc" value="${role?.description||''}"></div>
+     </div>
+     <div style="margin-top:.75rem">
+       <div style="font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:.5rem">
+         Matriz de Permisos
+       </div>
+       <table class="perm-table">
+         <thead>
+           <tr>
+             <th style="text-align:left">Módulo</th>
+             <th>Ver</th><th>Crear</th><th>Editar</th><th>Eliminar</th>
+           </tr>
+         </thead>
+         <tbody>${permRows}</tbody>
+       </table>
+     </div>`,
+    `<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+     <button class="btn btn-primary" onclick="saveRole()">💾 Guardar Permisos</button>`
+  );
+}
+
+async function saveRole() {
+  const name = document.getElementById('rf-name').value.trim();
+  const description = document.getElementById('rf-desc').value.trim();
+  if (!name) { notify('El nombre es requerido','error'); return; }
+
+  const permissions = MODULES.map(m => ({
+    module:     m.key,
+    can_view:   document.getElementById(`p-${m.key}-view`)?.checked   || false,
+    can_create: document.getElementById(`p-${m.key}-create`)?.checked || false,
+    can_edit:   document.getElementById(`p-${m.key}-edit`)?.checked   || false,
+    can_delete: document.getElementById(`p-${m.key}-delete`)?.checked || false,
+  }));
+
+  try {
+    if (editingId) {
+      await api('PUT', `/roles/${editingId}`, { name, description, permissions });
+      notify('Permisos actualizados ✓');
+    } else {
+      const r = await api('POST', '/roles', { name, description });
+      await api('PUT', `/roles/${r.id}`, { name, description, permissions });
+      notify('Rol creado ✓');
+    }
+    closeModal(); loadRoles();
+  } catch (e) { notify(e.message, 'error'); }
+}
+
+async function deleteRole(id, name) {
+  if (!confirm(`¿Eliminar rol "${name}"?`)) return;
+  try { await api('DELETE',`/roles/${id}`); notify('Rol eliminado'); loadRoles(); }
+  catch (e) { notify(e.message, 'error'); }
+}
+
+// ── UTILITIES ─────────────────────────────────
+function showNoAccess() {
+  document.getElementById('content').innerHTML = `
+    <div class="no-access">
+      <div class="no-access-icon">🔒</div>
+      <h3>Acceso Restringido</h3>
+      <p>No tienes permisos para ver esta sección.<br>Contacta al administrador del sistema.</p>
+    </div>`;
+}
+
+function filterTable(tableId, query) {
+  const q = query.toLowerCase();
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  let visible = 0;
+  rows.forEach(row => {
+    const match = row.textContent.toLowerCase().includes(q);
+    row.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+}
+</script>
+</body>
+</html>
